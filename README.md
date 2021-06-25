@@ -40,7 +40,7 @@ We need add custom fields to zabbix-agent configuration
 1. Create empty file `/etc/zabbix/zabbix_agentd.d/userparams.conf` More info: [Zabbix Userparameters](https://www.zabbix.com/documentation/current/ru/manual/config/items/userparameters)
 2. Add this lines to **userparams.conf**, and replace `#PATH_TO_SCRIPTS#` with real path to this files:  
 ```
-UserParameter=System.Temperature.discovery, cat #PATH_TO_SCRIPTS#/zabbix_sensors/discovery.txt
+UserParameter=System.temperature.discovery, cat #PATH_TO_SCRIPTS#/zabbix_sensors/discovery.txt
 UserParameter=System.temperature[*], #PATH_TO_SCRIPTS#/zabbix_sensors/temp_read.sh $1 temperature
 ```
 3. Check zabbix-agent daemon config `/etc/zabbix/zabbix_agentd.conf` for this line, add or uncomment if needed:
