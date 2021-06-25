@@ -40,3 +40,7 @@ UserParameter=System.temperature[*], /home/dimon/zabbix/temp_read.sh $1 temperat
 3. Check zabbix-agent daemon config `/etc/zabbix/zabbix_agentd.conf` for this line: `Include=/etc/zabbix/zabbix_agentd.d/*.conf`
 4. Restart zabbix-agent `service zabbix-agent restart`
 
+
+### Setup monitoring on zabbix-server
+
+TODO
