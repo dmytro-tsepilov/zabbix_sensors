@@ -56,6 +56,10 @@ while IFS= read -r line; do
 	tempString=$tempString$(parseSensor "$line")"\n";
 	discoveryArray+=($(cpuDiscovery "$line"))
     fi
+    if echo "$line" | grep -q 'AUXTIN:'; then
+        tempString=$tempString$(parseSensor "$line")"\n";
+        discoveryArray+=($(cpuDiscovery "$line"))
+    fi
     if echo "$line" | grep -q 'Core 0:'; then
 	tempString=$tempString$(parseSensor "$line")"\n";
 	discoveryArray+=($(cpuDiscovery "$line"))
