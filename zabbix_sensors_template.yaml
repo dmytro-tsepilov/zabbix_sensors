@@ -1,0 +1,41 @@
+zabbix_export:
+  version: '5.4'
+  date: '2021-06-26T17:41:23Z'
+  groups:
+    -
+      uuid: e960332b3f6c46a1956486d4f3f99fce
+      name: 'Templates/Server hardware'
+  templates:
+    -
+      uuid: a728359856db43c7b39acfa4405df9c0
+      template: 'Template System Temperature'
+      name: 'Template System Temperature'
+      groups:
+        -
+          name: 'Templates/Server hardware'
+      discovery_rules:
+        -
+          uuid: 924693aa842d4d22ab10b2fb8e2f2c48
+          name: 'System Temperature'
+          key: System.temperature.discovery
+          item_prototypes:
+            -
+              uuid: 82a9f7550acd48c2a45b41e27a7b1ee3
+              name: 'Temperature of {#DEVICE_MODEL} ({#DEVICE_NAME})'
+              key: 'System.temperature[{#DEVICE_NAME}]'
+              units: °C
+              tags:
+                -
+                  tag: Application
+                  value: Temperature
+          graph_prototypes:
+            -
+              uuid: fa2e29b6e62d41cca1d019c8eeaa8b40
+              name: 'Temperature of {#DEVICE_MODEL} ({#DEVICE_NAME})'
+              graph_items:
+                -
+                  sortorder: '1'
+                  color: 199C0D
+                  item:
+                    host: 'Template System Temperature'
+                    key: 'System.temperature[{#DEVICE_NAME}]'
