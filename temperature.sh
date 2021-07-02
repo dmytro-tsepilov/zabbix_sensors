@@ -37,7 +37,7 @@ Sensors=$(sensors);
 
 parseSensor()
 {
-   line=$1;
+   local line=$1;
    local sensorName=$(echo $line | awk -F ':' '{printf("%s", tolower($1))}' | sed 's/ //g');
    local temp=$(echo $line | awk -F ':' '{printf("%d ", $2)}');
    echo "/dev/$sensorName/temperature:$temp";
@@ -45,26 +45,14 @@ parseSensor()
 
 cpuDiscovery()
 {
-   line=$1;
+   local line=$1;
    local deviceName=$(echo $line | awk -F ':' '{printf("%s", tolower($1))}' | sed 's/ //g');
    local sensorName=$(echo $line | awk -F ':' '{printf("%s", $1)}' | sed 's/ /_/g');
    echo "{\"{#DEVICE_NAME}\":\"$deviceName\",\"{#DEVICE_MODEL}\":\"$sensorName\",\"{#DEVICE_TYPE}\":\"cpu\"}";
 }
 
 while IFS= read -r line; do
-    if echo "$line" | grep -q 'SYSTIN:'; then
-	tempString=$tempString$(parseSensor "$line")"\n";
-	discoveryArray+=($(cpuDiscovery "$line"))
-    fi
-    if echo "$line" | grep -q 'AUXTIN:'; then
-        tempString=$tempString$(parseSensor "$line")"\n";
-        discoveryArray+=($(cpuDiscovery "$line"))
-    fi
-    if echo "$line" | grep -q 'Core 0:'; then
-	tempString=$tempString$(parseSensor "$line")"\n";
-	discoveryArray+=($(cpuDiscovery "$line"))
-    fi
-    if echo "$line" | grep -q 'Package'; then
+    if echo "$line" | grep -q 'SYSTIN:\|AUXTIN:\|Core 0:\|Package'; then
 	tempString=$tempString$(parseSensor "$line")"\n";
 	discoveryArray+=($(cpuDiscovery "$line"))
     fi
@@ -74,10 +62,10 @@ done < <(printf '%s\n' "$Sensors")
 function join_by { local d=${1-} f=${2-}; if shift 2; then printf %s "$f" "${@/#/$d}"; fi; }
 
 echo -e $tempString > $SCRIPT_PATH/temperature.txt
-chown dimon:dimon $SCRIPT_PATH/temperature.txt
+chmod 0666 $SCRIPT_PATH/temperature.txt
 
 
 discoveryString="["$(join_by ',' ${discoveryArray[*]})"]"
 
 echo -e $discoveryString > $SCRIPT_PATH/discovery.txt
-chown dimon:dimon $SCRIPT_PATH/discovery.txt
+chmod 0666 $SCRIPT_PATH/discovery.txt
