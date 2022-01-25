@@ -38,23 +38,50 @@ Sensors=$(sensors);
 parseSensor()
 {
    local line=$1;
+   local cpuNumber=$2;
    local sensorName=$(echo $line | awk -F ':' '{printf("%s", tolower($1))}' | sed 's/ //g');
-   local temp=$(echo $line | awk -F ':' '{printf("%d ", $2)}');
-   echo "/dev/$sensorName/temperature:$temp";
+   local tempValue=$(echo $line | awk -F ':' '{printf("%d ", $2)}');
+   if [[ "$tempValue" -lt "0" ]]; then
+      return;
+   fi
+   if [ ! -z "$cpuNumber" ]; then
+       echo "/dev/cpu${cpuNumber}_${sensorName}/temperature:$tempValue\n";
+   else
+       echo "/dev/mb_${sensorName}/temperature:$tempValue\n";
+   fi
 }
 
 cpuDiscovery()
 {
    local line=$1;
+   local cpuNumber=$2;
+
+   local tempValue=$(echo $line | awk -F ':' '{printf("%d ", $2)}');
+   if [[ "$tempValue" -lt "0" ]]; then
+      return;
+   fi
    local deviceName=$(echo $line | awk -F ':' '{printf("%s", tolower($1))}' | sed 's/ //g');
    local sensorName=$(echo $line | awk -F ':' '{printf("%s", $1)}' | sed 's/ /_/g');
-   echo "{\"{#DEVICE_NAME}\":\"$deviceName\",\"{#DEVICE_MODEL}\":\"$sensorName\",\"{#DEVICE_TYPE}\":\"cpu\"}";
+   if [ ! -z "$cpuNumber" ]; then
+       echo "{\"{#DEVICE_NAME}\":\"cpu${cpuNumber}_$deviceName\",\"{#DEVICE_MODEL}\":\"CPU${cpuNumber}-${sensorName}\",\"{#DEVICE_TYPE}\":\"cpu\"}";
+   else
+       echo "{\"{#DEVICE_NAME}\":\"mb_$deviceName\",\"{#DEVICE_MODEL}\":\"MB-$sensorName\",\"{#DEVICE_TYPE}\":\"mb\"}";
+   fi
 }
 
+
 while IFS= read -r line; do
-    if echo "$line" | grep -q 'SYSTIN:\|AUXTIN:\|Core 0:\|Package'; then
-	tempString=$tempString$(parseSensor "$line")"\n";
-	discoveryArray+=($(cpuDiscovery "$line"))
+    if echo "$line" | grep -q 'Core 0:\|Package\|coretemp'; then
+        if [[ $line == *"coretemp"* ]]; then
+           cpuNumber=$(echo $line | awk -F '-' '{printf("%d ", $3)}');
+        else
+           tempString=$tempString$(parseSensor "$line" $cpuNumber);
+           discoveryArray+=($(cpuDiscovery "$line" $cpuNumber))
+        fi
+    fi
+    if echo "$line" | grep -q 'SYSTIN:\|AUXTIN.*:'; then
+        tempString=$tempString$(parseSensor "$line");
+        discoveryArray+=($(cpuDiscovery "$line"))
     fi
 done < <(printf '%s\n' "$Sensors")
 
