@@ -29,9 +29,11 @@ Example of **temperature.txt**:
 update:2021-01-01_01:54:01
 /dev/sda/temperature:50
 /dev/sdb/temperature:46
-/dev/systin/temperature:39
-/dev/packageid0/temperature:32
-/dev/core0/temperature:32
+/dev/mb_systin/temperature:23
+/dev/mb_auxtin0/temperature:19
+/dev/mb_auxtin1/temperature:22
+/dev/cpu0_packageid0/temperature:16
+/dev/cpu0_core0/temperature:32
 ```
 
 ### Configure zabbix-agent
