@@ -54,5 +54,9 @@ Include=/etc/zabbix/zabbix_agentd.d/*.conf
 
 ### Setup monitoring on zabbix-server
 
+* #### Manual setup sensors
 1. TODO
-2. TODO
+* #### Setup using autodiscovery templates [Zabbix Low Level Discovery](https://www.zabbix.com/documentation/current/ru/manual/discovery/low_level_discovery)
+1. Open zabbix configuration (Configuration -> Templates) and click Import button at right upper corner to impoort template
+2. Choose file **zabbix_sensors_template.yaml** for import. It will create new group **Templates/Server hardware** and template **Template System Temperature**
+3. TODO
