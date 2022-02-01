@@ -3,7 +3,7 @@ SCRIPT_PATH=$(dirname "$0")
 
 
 ## Read HDD temperature with smartctl
-disks=$(lsblk -o NAME,TYPE | grep -E 'disk'| awk '{printf " "$1}')
+disks=$(lsblk -o NAME,TYPE | grep -E 'disk$'| awk '{printf " "$1}')
 
 tempString="update:$(date +%F_%H:%M:%S)\n"
 declare -a discoveryArray;
