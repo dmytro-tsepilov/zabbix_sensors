@@ -20,7 +20,7 @@ for dev in $disks;
          #echo $device "Temperature: $temp C";
 	 ## tempString="$tempString$device/name:$modelName\n"
          tempString="$tempString$device/temperature:$temp\n"
-	discoveryArray+=("{\"{#DEVICE_NAME}\":\"${dev::5}\",\"{#DEVICE_MODEL}\":\"{$modelName}\",\"{#DEVICE_TYPE}\":\"storage\"}")
+	discoveryArray+=("{\"{#DEVICE_NAME}\":\"${dev::5}\",\"{#DEVICE_MODEL}\":\"${modelName}\",\"{#DEVICE_TYPE}\":\"storage\"}")
       else
          temp=$(awk '{printf int($2)}' <(echo $temperature))
          #echo $device "Temperature: $temp C";
@@ -62,15 +62,19 @@ parseSensor()
 
 cpuDiscovery()
 {
-   local line=$1;
+   local line=$1
    local deviceType=$2
-   local cpuNumber=$3;
+   local cpuNumber=$3
+   local deviceName=$4
 
    local tempValue=$(echo $line | awk -F ':' '{printf("%d ", $2)}');
    if [[ "$tempValue" -lt "0" ]]; then
       return;
    fi
-   local deviceName=$(echo $line | awk -F ':' '{printf("%s", tolower($1))}' | sed 's/ //g');
+
+   if [ -z "${deviceName}" ]; then
+     local deviceName=$(echo $line | awk -F ':' '{printf("%s", tolower($1))}' | sed 's/ //g');
+   fi
    local sensorName=$(echo $line | awk -F ':' '{printf("%s", $1)}' | sed 's/ /_/g');
 
    case $deviceType in
@@ -81,7 +85,7 @@ cpuDiscovery()
 	echo "{\"{#DEVICE_NAME}\":\"mb_$deviceName\",\"{#DEVICE_MODEL}\":\"MB-$sensorName\",\"{#DEVICE_TYPE}\":\"mb\"}";
         ;;
     "wifi")
-	echo "{\"{#DEVICE_NAME}\":\"mb_$deviceName\",\"{#DEVICE_MODEL}\":\"MB-$sensorName\",\"{#DEVICE_TYPE}\":\"wifi\"}";
+	echo "{\"{#DEVICE_NAME}\":\"${deviceName}\",\"{#DEVICE_MODEL}\":\"${deviceName}\",\"{#DEVICE_TYPE}\":\"wifi\"}";
         ;;
    esac
 }
@@ -105,6 +109,7 @@ while IFS= read -r line; do
         else
            if [ ! -z "${wifiDevice}" ]; then
               tempString=$tempString$(parseSensor "$line" "wifi" 0 "${wifiDevice}");
+              discoveryArray+=($(cpuDiscovery "$line" "wifi" 0 "${wifiDevice}"))
               unset wifiDevice
            fi
         fi
