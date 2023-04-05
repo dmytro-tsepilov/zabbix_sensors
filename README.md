@@ -59,4 +59,7 @@ Include=/etc/zabbix/zabbix_agentd.d/*.conf
 * #### Setup using autodiscovery templates [Zabbix Low Level Discovery](https://www.zabbix.com/documentation/current/ru/manual/discovery/low_level_discovery)
 1. Open zabbix configuration (Configuration -> Templates) and click Import button at right upper corner to impoort template
 2. Choose file **zabbix_sensors_template.yaml** for import. It will create new group **Templates/Server hardware** and template **Template System Temperature**
-3. TODO
+3. Edit your Linux host monitored by zabbix agent and add template **Template System Temperature** to your host
+4. Navigate to Host -> Discover rules, look for **Template System Temperature: System Temperature** rule in list
+5. Check that rule have status **Enabled**
+6. Run discovery for rule: Select rule's checkbox and click **Execute now** at the bottom of list.
