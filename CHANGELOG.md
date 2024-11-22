@@ -1,4 +1,19 @@
 
+## [v1.4.0]
+
+> [!WARNING]  
+> **Breaking change!**
+
+### Added
++ Added check for installed `lm_sensors`. If not installed, fetching according data will be skipped
+
+### Changed
+- Removed file `temp_read.sh` and replaced with reading script from main script `temperature.sh`.
+
+### Migration
+In `userparams.conf` file change `/some/path/temp_read.sh $1` to `/some/path/temperature.sh --read=$1`
+
+
 ## [v1.3.0]
 
 > [!WARNING]  
@@ -12,6 +27,9 @@
 
 ### Fixed
 * Code formating
+
+### Migration
+In `userparams.conf` file change `/some/path/temp_read.sh $1 temperature` to `/some/path/temp_read.sh $1`
 
 
 ## [v1.2.0]

@@ -15,6 +15,9 @@ On ubntu: `apt-get install lm-sensors`,  after instalation configure it with com
 Run: `sudo crontab -e`  
 Add line: `*/1 * * * * $HOME/zabbix_sensors/temperature.sh`
 
+or add to system crontab: `/etc/crontab`
+Add line: `*/1 * * * * $HOME/zabbix_sensors/temperature.sh`
+
 As a result script will generate two files:
 
 * discovery.txt - JSON file with discovered sensors. More info: [Zabbix Low Level Discovery](https://www.zabbix.com/documentation/current/ru/manual/discovery/low_level_discovery).  
@@ -29,6 +32,8 @@ Example of **temperature.txt**:
 update:2021-01-01_01:54:01
 /dev/sda/temperature:50
 /dev/sdb/temperature:46
+/dev/nvme0/temperature1:42
+/dev/nvme0/temperature2:45
 /dev/mb_systin/temperature:23
 /dev/mb_auxtin0/temperature:19
 /dev/mb_auxtin1/temperature:22
@@ -43,7 +48,7 @@ We need add custom fields to zabbix-agent configuration
 2. Add this lines to **userparams.conf**, and replace `#PATH_TO_SCRIPTS#` with real path to this files:  
 ```
 UserParameter=System.temperature.discovery, cat #PATH_TO_SCRIPTS#/zabbix_sensors/discovery.txt
-UserParameter=System.temperature[*], #PATH_TO_SCRIPTS#/zabbix_sensors/temp_read.sh $1
+UserParameter=System.temperature[*], #PATH_TO_SCRIPTS#/zabbix_sensors/temperature.sh --read=$1
 ```
 3. Check zabbix-agent daemon config `/etc/zabbix/zabbix_agentd.conf` for this line, add or uncomment if needed:
 ```
