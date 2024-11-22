@@ -7,8 +7,11 @@
 ### Added
 + Added support several sensors from NVMe disks
 * **WARNING!** This will lead to breaking existing autodiscovery device name from `nvme0` to `nvme0,temperature1`
-* with loosing history monitored data
+* **WARNING!** with loosing history monitored data
+* The word `temperature` should be removed from parameters in user params for reading temp: `/some/path/temp_read.sh $1`
 
+### Fixed
+* Code formating
 
 ## [v1.2.0]
 
