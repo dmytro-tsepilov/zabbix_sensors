@@ -8,12 +8,23 @@ disks=$(lsblk -o NAME,TYPE | grep -E 'disk$'| awk '{printf " "$1}')
 tempString="update:$(date +%F_%H:%M:%S)\n"
 declare -a discoveryArray;
 
+
+readMultiLine()
+{
+   local lines=$1
+
+   while IFS= read -r tempSensor; do
+     echo -e "Test ${tempSensor}"
+   done < <(printf '%s\n' "$lines")
+}
+
 for dev in $disks;
     do
       device="/dev/"${dev::5};
 
       modelName=$(sudo smartctl -i $device | grep -E "Device Model:|Model Number:" | awk -F ':' '{printf("%s", $2)}' | xargs)
       temperature=$(sudo smartctl -A $device | grep -E "Temperature:|Temperature_Celsius")
+      temperatureM=$(sudo smartctl -A $device | grep -E "Temperature Sensor")
 
       if [ ${temperature::3} == "194" ]; then
          temp=$(awk '{printf int($10)}' <(echo $temperature))
@@ -21,6 +32,14 @@ for dev in $disks;
 	 ## tempString="$tempString$device/name:$modelName\n"
          tempString="$tempString$device/temperature:$temp\n"
 	discoveryArray+=("{\"{#DEVICE_NAME}\":\"${dev::5}\",\"{#DEVICE_MODEL}\":\"${modelName}\",\"{#DEVICE_TYPE}\":\"storage\"}")
+      elif [ ! -z "${temperatureM}" ]; then
+          while IFS= read -r tempSensor; do
+            temp=$(awk '{printf int($4)}' <(echo ${tempSensor}))
+            sensor=$(awk '{printf int($3)}' <(echo ${tempSensor}))
+            tempString="$tempString$device/temperature${sensor}:${temp}\n"
+            discoveryArray+=("{\"{#DEVICE_NAME}\":\"${dev::5},temperature${sensor}\",\"{#DEVICE_MODEL}\":\"${modelName}\",\"{#DEVICE_TYPE}\":\"storage\"}")
+            ##echo "Test ${sensor} ${temp}\n"
+          done < <(printf '%s\n' "${temperatureM}")
       else
          temp=$(awk '{printf int($2)}' <(echo $temperature))
          #echo $device "Temperature: $temp C";
