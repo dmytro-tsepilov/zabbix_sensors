@@ -92,6 +92,11 @@ cpuDiscovery() {
 
 ## Read System temperature with sensors
 readHardwareTemperature() {
+   if ! command -v sensors 2>&1 >/dev/null
+   then
+      return
+   fi
+
    local Sensors=$(sensors)
 
    while IFS= read -r line; do
@@ -126,12 +131,19 @@ readHardwareTemperature() {
    done < <(printf '%s\n' "$Sensors")
 }
 
-readDriveTemperature
-readHardwareTemperature
+readTemperatures() {
+   local DEVICE=$1
+   local PROPERTY=$2
 
-echo -e $tempString > $SCRIPT_PATH/temperature.txt
-chmod 0666 $SCRIPT_PATH/temperature.txt
+   if [ -z "${PROPERTY}" ]; then
+      PROPERTY=$(echo $DEVICE | awk -F ',' '{printf("%s", $2)}')
+      DEVICE=$(echo $DEVICE | awk -F ',' '{printf("%s", $1)}')
+   else
+      PROPERTY="temperature"
+   fi
 
+   cat $SCRIPT_PATH/temperature.txt | grep "/dev/$DEVICE/$PROPERTY" | awk 'BEGIN { FS = ":" }; {printf $2}'
+}
 
 function arrayImplode {
    local array=("$@")
@@ -148,8 +160,30 @@ function arrayImplode {
    echo "${string}"
 }
 
-discoveryString="["$(arrayImplode "${discoveryArray[@]}")"]"
+## Parse command line for parameters
+for i in "$@"; do
+   case $i in
+   --read=*)
+      ACTION="read"
+      DEVICE="${i#*=}"
+      ;;
+   esac
+done
 
+case $ACTION in
+   "read")
+      readTemperatures $DEVICE
+      ;;
+   *)
+      readDriveTemperature
+      readHardwareTemperature
 
-echo -e $discoveryString > $SCRIPT_PATH/discovery.txt
-chmod 0666 $SCRIPT_PATH/discovery.txt
+      echo -e $tempString >$SCRIPT_PATH/temperature.txt
+      chmod 0666 $SCRIPT_PATH/temperature.txt
+
+      discoveryString="["$(arrayImplode "${discoveryArray[@]}")"]"
+
+      echo -e $discoveryString >$SCRIPT_PATH/discovery.txt
+      chmod 0666 $SCRIPT_PATH/discovery.txt
+      ;;
+esac
