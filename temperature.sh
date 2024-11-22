@@ -29,8 +29,6 @@ for dev in $disks; do
       done < <(printf '%s\n' "${temperatureM}")
    else
       temp=$(awk '{printf int($2)}' <(echo $temperature))
-      #echo $device "Temperature: $temp C";
-      ## tempString="$tempString$device/name:$modelName\n"
       tempString="$tempString$device/temperature:$temp\n"
       discoveryArray+=("{\"{#DEVICE_NAME}\":\"${dev::5}\",\"{#DEVICE_MODEL}\":\"${modelName}\",\"{#DEVICE_TYPE}\":\"storage\"}")
    fi
