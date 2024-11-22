@@ -160,6 +160,7 @@ function arrayImplode {
    echo "${string}"
 }
 
+ACTION="parse"
 ## Parse command line for parameters
 for i in "$@"; do
    case $i in
@@ -174,7 +175,7 @@ case $ACTION in
    "read")
       readTemperatures $DEVICE
       ;;
-   *)
+   "parse")
       readDriveTemperature
       readHardwareTemperature
 

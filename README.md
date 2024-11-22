@@ -29,6 +29,8 @@ Example of **temperature.txt**:
 update:2021-01-01_01:54:01
 /dev/sda/temperature:50
 /dev/sdb/temperature:46
+/dev/nvme0/temperature1:42
+/dev/nvme0/temperature2:45
 /dev/mb_systin/temperature:23
 /dev/mb_auxtin0/temperature:19
 /dev/mb_auxtin1/temperature:22
