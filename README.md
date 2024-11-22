@@ -15,6 +15,9 @@ On ubntu: `apt-get install lm-sensors`,  after instalation configure it with com
 Run: `sudo crontab -e`  
 Add line: `*/1 * * * * $HOME/zabbix_sensors/temperature.sh`
 
+or add to system crontab: `/etc/crontab`
+Add line: `*/1 * * * * $HOME/zabbix_sensors/temperature.sh`
+
 As a result script will generate two files:
 
 * discovery.txt - JSON file with discovered sensors. More info: [Zabbix Low Level Discovery](https://www.zabbix.com/documentation/current/ru/manual/discovery/low_level_discovery).  
