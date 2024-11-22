@@ -7,14 +7,6 @@ disks=$(lsblk -o NAME,TYPE | grep -E 'disk$' | awk '{printf " "$1}')
 tempString="update:$(date +%F_%H:%M:%S)\n"
 declare -a discoveryArray
 
-readMultiLine() {
-   local lines=$1
-
-   while IFS= read -r tempSensor; do
-      echo -e "Test ${tempSensor}"
-   done < <(printf '%s\n' "$lines")
-}
-
 for dev in $disks; do
    device="/dev/"${dev::5}
 
