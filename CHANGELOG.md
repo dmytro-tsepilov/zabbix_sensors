@@ -1,3 +1,8 @@
+## [v1.5.0]
+
+### Changed
+- Improved fetching disk SMART data
+
 
 ## [v1.4.0]
 

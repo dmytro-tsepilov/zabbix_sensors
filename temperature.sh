@@ -11,26 +11,28 @@ readDriveTemperature() {
    for dev in $disks; do
       local device="/dev/"${dev::5}
 
-      local modelName=$(sudo smartctl -i $device | grep -E "Device Model:|Model Number:" | awk -F ':' '{printf("%s", $2)}' | xargs)
-      local temperature=$(sudo smartctl -A $device | grep -E "Temperature:|Temperature_Celsius")
-      local temperatureM=$(sudo smartctl -A $device | grep -E "Temperature Sensor")
+      local smartData=$(sudo smartctl -Ai $device)
+
+      local modelName=$(printf '%s\n' "$smartData" | grep -E "Device Model:|Model Number:" | awk -F ':' '{printf("%s", $2)}' | xargs)
+      local temperature=$(printf '%s\n' "$smartData" | grep -E "Temperature:|Temperature_Celsius")
+      local temperatureM=$(printf '%s\n' "$smartData" | grep -E "Temperature Sensor")
 
       if [ ${temperature::3} == "194" ]; then
          local temp=$(awk '{printf int($10)}' <(echo $temperature))
          #echo $device "Temperature: $temp C";
          ## tempString="$tempString$device/name:$modelName\n"
-         tempString="$tempString$device/temperature:$temp\n"
+         tempString="${tempString}${device}/temperature:$temp\n"
          discoveryArray+=("{\"{#DEVICE_NAME}\":\"${dev::5}\",\"{#DEVICE_MODEL}\":\"${modelName}\",\"{#DEVICE_TYPE}\":\"storage\"}")
       elif [ ! -z "${temperatureM}" ]; then
          while IFS= read -r tempSensor; do
             local temp=$(awk '{printf int($4)}' <(echo ${tempSensor}))
             local sensor=$(awk '{printf int($3)}' <(echo ${tempSensor}))
-            tempString="$tempString$device/temperature${sensor}:${temp}\n"
+            tempString="${tempString}${device}/temperature${sensor}:${temp}\n"
             discoveryArray+=("{\"{#DEVICE_NAME}\":\"${dev::5},temperature${sensor}\",\"{#DEVICE_MODEL}\":\"${modelName}\",\"{#DEVICE_TYPE}\":\"storage\"}")
          done < <(printf '%s\n' "${temperatureM}")
       else
          local temp=$(awk '{printf int($2)}' <(echo $temperature))
-         tempString="$tempString$device/temperature:$temp\n"
+         tempString="${tempString}${device}/temperature:$temp\n"
          discoveryArray+=("{\"{#DEVICE_NAME}\":\"${dev::5}\",\"{#DEVICE_MODEL}\":\"${modelName}\",\"{#DEVICE_TYPE}\":\"storage\"}")
       fi
       ## echo -e "\n"
